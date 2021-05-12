@@ -691,13 +691,13 @@ impl Handler {
         self.new_session(node_address, session);
     }
 
-    /// Verifies a Node ENR to it's observed address. If it fails, any associated session is also
-    /// considered failed. If it succeeds, we notify the application.
+    /// Verifies a Node ENR to its observed node ID
     fn verify_enr(&self, enr: &Enr, node_address: &NodeAddress) -> bool {
-        // If the ENR does not match the observed IP addresses, we consider the Session
-        // failed.
+        // If we invalidate a peer based on a mismatched IP address, then we don't get a chance to
+        // tell them to update via a PONG message. So we accept mismatched addresses.
+        // TODO distinguish between peers with matched & mismatched IPs and tread them differently,
+        // see TrustedState that was removed by commit 2447c3c45b4d2116ee9e8919c51f4f059587cc19
         enr.node_id() == node_address.node_id
-            && (enr.udp_socket().is_none() || enr.udp_socket() == Some(node_address.socket_addr))
     }
 
     /// Handle a message that contains an authentication header.
